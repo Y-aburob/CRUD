@@ -1,0 +1,33 @@
+.nav-container {
+    display: flex;
+    justify-content: flex-start;
+    padding: 10px 20px;
+  }
+  
+  .p-tabmenu {
+    background: transparent;
+    border: none;
+  }
+  
+  .p-tabmenu .p-tabmenu-nav {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .p-tabmenu .p-tabmenuitem a {
+    color: #333;
+    font-weight: 600;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: 0.3s;
+  }
+  
+  .p-tabmenu .p-tabmenuitem.p-highlight a {
+    background: #1976d2;
+    color: white;
+  }
+  
+  .p-tabmenu .p-tabmenuitem:hover a {
+    background: #1976d2;
+    color: white;
+  }
