@@ -12,6 +12,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { ButtonComponent } from '../components';
@@ -32,6 +33,7 @@ function Home() {
   const [open, setOpen] = useState(false);
   const endPoint = 'https://67bd8287321b883e790cc170.mockapi.io/users';
   const [users, setUsers] = useState<Users[]>([]);
+  const [loading, setLoading] = useState(true);
   const [_editButton, setEditButton] = useState('Add User');
 
   const [useForm, setUserForm] = useState({
@@ -47,8 +49,14 @@ function Home() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersData = await getUsers(endPoint);
-      setUsers(usersData);
+      try {
+        const usersData = await getUsers(endPoint);
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchUsers();
   }, []);
@@ -114,9 +122,7 @@ function Home() {
       });
 
       if (updatedUser) {
-        setUsers(prevUsers =>
-          prevUsers.map(user => (user.id === updatedUser.id ? updatedUser : user))
-        );
+        setUsers(prevUsers => prevUsers.map(user => (user.id === updatedUser.id ? updatedUser : user)));
       }
     } else {
       setEditButton('add user');
@@ -127,12 +133,11 @@ function Home() {
 
   const handleDeleteUser = async () => {
     const usersAfterDelete = await deleteUser(endPoint, users, pickedUserId);
-    
+
     if (usersAfterDelete) {
       setUsers(usersAfterDelete);
       setShowDeleteMessage(false);
     }
-
   };
 
   const confirmDeleteUser = (userId: string) => {
@@ -238,7 +243,8 @@ function Home() {
         />
 
         <Box sx={{ marginTop: 10, overflow: 'auto', marginBottom: 1 }}>
-          <Box display={'flex'} marginTop={5} alignItems={'center'} justifyContent={'end'} gap={3}>
+          <Box display={'flex'} marginTop={5} alignItems={'center'} justifyContent={'space-between'} gap={3}>
+            <Typography variant='h6'>A CRUD System using fetch method</Typography>
             <ButtonComponent
               content="Add User"
               variant="contained"
@@ -258,60 +264,74 @@ function Home() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {users.map(user => (
-                  <TableRow
-                    key={user?.id}
-                    sx={{
-                      borderBottom: '2px solid rgba(0, 0, 0, 0.1)',
-                    }}
-                  >
-                    <TableCell sx={{ width: '25%', border: 'none' }}>{user?.name}</TableCell>
-                    <TableCell sx={{ width: '25%', border: 'none' }}>{user?.email}</TableCell>
-                    <TableCell sx={{ width: '25%', border: 'none' }}>{user?.number}</TableCell>
-                    <TableCell sx={{ width: '25%', border: 'none', display: 'flex', flexWrap: 'nowrap' }}>
-                      <ButtonComponent
-                        content="Edit"
-                        id={user?.id}
-                        onClick={e => handleEdit(e.currentTarget.id)}
-                        variant="outlined"
-                        sx={{
-                          marginRight: 1,
-                          minHeight: '32px',
-                          px: 3,
-                          fontSize: '0.85rem',
-                          fontWeight: 500,
-                          borderRadius: '8px',
-                          textTransform: 'capitalize',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            backgroundColor: 'primary.main',
-                            color: 'white',
-                          },
-                        }}
-                      />
-                      <ButtonComponent
-                        content="Delete"
-                        id={user?.number}
-                        onClick={() => confirmDeleteUser(user?.id ?? '')}
-                        variant="outlined"
-                        color="error"
-                        sx={{
-                          minHeight: '32px',
-                          px: 3,
-                          fontSize: '0.85rem',
-                          fontWeight: 500,
-                          borderRadius: '8px',
-                          textTransform: 'capitalize',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            backgroundColor: 'error.main',
-                            color: 'white',
-                          },
-                        }}
-                      />
+                {loading ? ( // Show loading state
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      Loading...
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : users.length === 0 ? ( // Show message if no users
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No users found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users.map(user => (
+                    <TableRow
+                      key={user?.id}
+                      sx={{
+                        borderBottom: '2px solid rgba(0, 0, 0, 0.1)',
+                      }}
+                    >
+                      <TableCell sx={{ width: '25%', border: 'none' }}>{user?.name}</TableCell>
+                      <TableCell sx={{ width: '25%', border: 'none' }}>{user?.email}</TableCell>
+                      <TableCell sx={{ width: '25%', border: 'none' }}>{user?.number}</TableCell>
+                      <TableCell sx={{ width: '25%', border: 'none', display: 'flex', flexWrap: 'nowrap' }}>
+                        <ButtonComponent
+                          content="Edit"
+                          id={user?.id}
+                          onClick={e => handleEdit(e.currentTarget.id)}
+                          variant="outlined"
+                          sx={{
+                            marginRight: 1,
+                            minHeight: '32px',
+                            px: 3,
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                            borderRadius: '8px',
+                            textTransform: 'capitalize',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              backgroundColor: 'primary.main',
+                              color: 'white',
+                            },
+                          }}
+                        />
+                        <ButtonComponent
+                          content="Delete"
+                          id={user?.number}
+                          onClick={() => confirmDeleteUser(user?.id ?? '')}
+                          variant="outlined"
+                          color="error"
+                          sx={{
+                            minHeight: '32px',
+                            px: 3,
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                            borderRadius: '8px',
+                            textTransform: 'capitalize',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              backgroundColor: 'error.main',
+                              color: 'white',
+                            },
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
