@@ -155,7 +155,7 @@ function AxiosCRUD() {
           sx={{
             '& .MuiDialog-paper': {
               width: '400px',
-              height: '420px',
+              height: '430px',
               padding: '.5rem',
               maxWidth: 'none',
             },
@@ -244,11 +244,27 @@ function AxiosCRUD() {
         />
 
         <Box sx={{ marginTop: 10, overflow: 'auto', marginBottom: 1 }}>
-          <Box display={'flex'} marginTop={5} alignItems={'center'} justifyContent={'space-between'} gap={3}>
-            <Typography variant='h6'>A CRUD System using Axios method</Typography>
+          <Typography
+            maxWidth="400px"
+            variant="h4"
+            fontSize="28px"
+            color="#1E88E5"
+            sx={{ margin: { xs: 'auto', md: '0' }, textAlign: { xs: 'center', md: 'left' } }}
+          >
+            A CRUD System using Axios method
+          </Typography>
+
+          <Box
+            display={'flex'}
+            marginTop={5}
+            alignItems={'center'}
+            sx={{ justifyContent: { xs: 'center', md: 'end' } }}
+            gap={3}
+          >
             <ButtonComponent
               content="Add User"
               variant="contained"
+              size='medium'
               sx={{ marginTop: 1, textTransform: 'capitalize', height: '32px' }}
               color="primary"
               onClick={handleOpen}

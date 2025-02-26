@@ -4,9 +4,9 @@ type ButtonComponentProps = ButtonProps & {
   content: string;
 };
 
-function ButtonComponent({ content, ...rest }: ButtonComponentProps) {
+function ButtonComponent({ content, size= 'small', ...rest }: ButtonComponentProps) {
   return (
-    <Button {...rest} size="small">
+    <Button {...rest} size={size}>
       {content}
     </Button>
   );

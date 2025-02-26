@@ -154,7 +154,7 @@ function Home() {
           sx={{
             '& .MuiDialog-paper': {
               width: '400px',
-              height: '420px',
+              height: '430px',
               padding: '.5rem',
               maxWidth: 'none',
             },
@@ -212,7 +212,6 @@ function Home() {
             <DialogActions sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
               <ButtonComponent
                 content="Cancel"
-                size="medium"
                 sx={{ textTransform: 'capitalize' }}
                 onClick={handleClose}
                 color="error"
@@ -243,9 +242,24 @@ function Home() {
         />
 
         <Box sx={{ marginTop: 10, overflow: 'auto', marginBottom: 1 }}>
-          <Box display={'flex'} marginTop={5} alignItems={'center'} justifyContent={'space-between'} gap={3}>
-            <Typography variant='h6'>A CRUD System using fetch method</Typography>
+          <Typography
+            maxWidth={'400px'}
+            variant="h4"
+            fontSize={'28px'}
+            color="#1E88E5"
+            sx={{ margin: { xs: 'auto', md: '0' }, textAlign: { xs: 'center', md: 'left' } }}
+          >
+            A CRUD System using fetch method
+          </Typography>
+          <Box
+            display={'flex'}
+            marginTop={5}
+            alignItems={'center'}
+            sx={{ justifyContent: { xs: 'center', md: 'end' } }}
+            gap={3}
+          >
             <ButtonComponent
+              size="medium"
               content="Add User"
               variant="contained"
               sx={{ marginTop: 1, textTransform: 'capitalize', height: '32px' }}
@@ -264,13 +278,13 @@ function Home() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {loading ? ( // Show loading state
+                {loading ? (
                   <TableRow>
                     <TableCell colSpan={4} align="center">
                       Loading...
                     </TableCell>
                   </TableRow>
-                ) : users.length === 0 ? ( // Show message if no users
+                ) : users.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} align="center">
                       No users found.
