@@ -9,9 +9,9 @@ function NavMenu() {
   const location = useLocation();
 
   const items: MenuItem[] = [
-    { label: 'CRUD with fetch', icon: 'pi pi-home', command: () => navigate('/') },
-    { label: 'CRUD with axios', icon: 'pi pi-chart-line', command: () => navigate('/axios') },
-    { label: 'CRUD with query', icon: 'pi pi-list', command: () => navigate('/query') },
+    { label: 'Using Fetch', icon: 'pi pi-home', command: () => navigate('/') },
+    { label: 'Using Axios', icon: 'pi pi-chart-line', command: () => navigate('/axios') },
+    { label: 'Using Query', icon: 'pi pi-list', command: () => navigate('/query') },
   ];
 
   const activeIndex = items.findIndex(item => item?.command?.toString().includes(location.pathname));
