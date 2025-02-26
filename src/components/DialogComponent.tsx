@@ -17,6 +17,7 @@ type DialogComponentProps = {
     confirmText: string;
     confirmAction: () => void;
   };
+  sx?: object
 };
 
 const DialogComponent = ({
@@ -25,9 +26,10 @@ const DialogComponent = ({
   title,
   children,
   actions,
+  sx
 }: DialogComponentProps) => {
   return (
-    <Dialog open={open} onClose={onClose} sx={{ '& .MuiDialog-paper': { maxWidth: '400px', width: '100%' } }}>
+    <Dialog open={open} onClose={onClose} sx={{ '& .MuiDialog-paper': { maxWidth: '400px', width: '100%' }, ...sx }}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{children}</DialogContent>
       <DialogActions sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>

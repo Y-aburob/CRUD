@@ -13,29 +13,62 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ButtonComponent } from '../components';
 import DialogComponent from '../components/DialogComponent';
+import { createUser, getUsers } from '../api';
+import { deleteUser } from '../api/fetchMethod/deleteUser';
+import { editUser } from '../api/fetchMethod/editUser';
 
 type Users = {
-  id: string;
   name: string;
   email: string;
   number: string;
   image: string;
+  id?: string;
 };
 
 function Home() {
   const [open, setOpen] = useState(false);
+  const endPoint = 'https://67bd8287321b883e790cc170.mockapi.io/users';
+  const [users, setUsers] = useState<Users[]>([]);
+  const [_editButton, setEditButton] = useState('Add User');
+
+  const [useForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    number: '',
+    image: '',
+  });
+
+  const [showDeleteMessage, setShowDeleteMessage] = useState(false);
+  const [editingUser, setEditingUser] = useState<Users | null>(null);
+  const [pickedUserId, setPickedUserId] = useState('');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersData = await getUsers(endPoint);
+      setUsers(usersData);
+    };
+    fetchUsers();
+  }, []);
 
   const handleOpen = () => {
     setEditButton('add user');
-    setName('');
-    setEmail('');
-    setNumber('');
-    setImage('');
+
+    setUserForm({
+      name: '',
+      email: '',
+      number: '',
+      image: '',
+    });
     setEditingUser(null);
     setOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleClose = () => {
@@ -43,61 +76,63 @@ function Home() {
     setShowDeleteMessage(false);
   };
 
-  const [users, setUsers] = useState<Users[]>([]);
-  const [editButton, setEditButton] = useState('Add User');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [number, setNumber] = useState('');
-  const [image, setImage] = useState('');
-  const [showDeleteMessage, setShowDeleteMessage] = useState(false);
-  const [editingUser, setEditingUser] = useState<Users | null>(null);
-  const [pickedUserId, setPickedUserId] = useState('');
-
-  const addUser = () => {
-    const newUser: Users = {
-      id: number,
-      name: name,
-      email: email,
-      number: number,
-      image: image,
-    };
-    setUsers(prevUser => [...prevUser, newUser]);
-    handleClose();
+  const handleCreateUser = async () => {
+    const newUser = await createUser(endPoint, {
+      name: useForm.name,
+      email: useForm.email,
+      number: useForm.number,
+      image: useForm.image,
+    });
+    if (newUser) {
+      setUsers(prevUsers => [...prevUsers, newUser]);
+      handleClose();
+    }
   };
 
   const handleEdit = (userId: string) => {
     setEditButton('edit user');
-    const userToEdit = users.find(user => user.id === userId);
+    const userToEdit = users.find(user => user?.id === userId);
     if (userToEdit) {
       setEditingUser(userToEdit);
-      setName(userToEdit.name);
-      setEmail(userToEdit.email);
-      setNumber(userToEdit.number);
-      setImage(userToEdit.image);
+      setUserForm({
+        name: userToEdit.name,
+        email: userToEdit.email,
+        number: userToEdit.number,
+        image: userToEdit.image,
+      });
       setOpen(true);
     }
   };
 
-  const saveUser = () => {
+  const saveUser = async () => {
     if (editingUser) {
-      const updateUser: Users = {
-        id: editingUser.id,
-        name: name,
-        email: email,
-        number: number,
-        image: image,
-      };
-      setUsers(prevUsers => prevUsers.map(user => (user.id === updateUser.id ? updateUser : user)));
+      const updatedUser = await editUser(endPoint, editingUser.id ?? '', {
+        userName: useForm.name,
+        userEmail: useForm.email,
+        userNumber: useForm.number,
+        usermage: useForm.image,
+      });
+
+      if (updatedUser) {
+        setUsers(prevUsers =>
+          prevUsers.map(user => (user.id === updatedUser.id ? updatedUser : user))
+        );
+      }
     } else {
       setEditButton('add user');
-      addUser();
+      handleCreateUser();
     }
     handleClose();
   };
 
-  const handleDeleteUser = () => {
-    setUsers(prevUsers => prevUsers.filter(user => user.id !== pickedUserId));
-    setShowDeleteMessage(false);
+  const handleDeleteUser = async () => {
+    const usersAfterDelete = await deleteUser(endPoint, users, pickedUserId);
+    
+    if (usersAfterDelete) {
+      setUsers(usersAfterDelete);
+      setShowDeleteMessage(false);
+    }
+
   };
 
   const confirmDeleteUser = (userId: string) => {
@@ -114,63 +149,80 @@ function Home() {
           sx={{
             '& .MuiDialog-paper': {
               width: '400px',
-              height: '400px',
+              height: '420px',
               padding: '.5rem',
               maxWidth: 'none',
             },
           }}
         >
-          <DialogTitle textAlign={'center'}>Add New User</DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: 2, gap: 3, justifyContent: 'end' }}>
-              <TextField
-                value={name}
-                onChange={e => setName(e.target.value)}
-                label="Name"
-                variant="outlined"
-                size="small"
-              />
-              <TextField
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                label="Email"
-                variant="outlined"
-                size="small"
-              />
-              <TextField
-                value={number}
-                onChange={e => setNumber(e.target.value)}
-                label="Number"
-                variant="outlined"
-                size="small"
-              />
-              <TextField
-                value={image}
-                onChange={e => setImage(e.target.value)}
-                label="Image"
-                variant="outlined"
-                size="small"
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-            <ButtonComponent
-              content="cancel"
-              size="medium"
-              sx={{ textTransform: 'capitalize' }}
-              onClick={handleClose}
-              color="error"
-            />
+          <DialogTitle textAlign={'center'}>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
 
-            <ButtonComponent
-              content={editButton}
-              size="medium"
-              sx={{ textTransform: 'capitalize' }}
-              onClick={saveUser}
-              variant="contained"
-              color="primary"
-            />
-          </DialogActions>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              saveUser();
+            }}
+          >
+            <DialogContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: 2, gap: 3, justifyContent: 'end' }}>
+                <TextField
+                  value={useForm.name}
+                  name="name"
+                  onChange={handleInputChange}
+                  label="Name"
+                  variant="outlined"
+                  size="small"
+                  required
+                />
+                <TextField
+                  value={useForm.email}
+                  onChange={handleInputChange}
+                  label="Email"
+                  name="email"
+                  variant="outlined"
+                  size="small"
+                  type="email"
+                  required
+                />
+                <TextField
+                  value={useForm.number}
+                  onChange={handleInputChange}
+                  label="Number"
+                  name="number"
+                  variant="outlined"
+                  size="small"
+                  required
+                />
+                <TextField
+                  value={useForm.image}
+                  onChange={handleInputChange}
+                  label="Image"
+                  name="image"
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
+            </DialogContent>
+
+            <DialogActions sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+              <ButtonComponent
+                content="Cancel"
+                size="medium"
+                sx={{ textTransform: 'capitalize' }}
+                onClick={handleClose}
+                color="error"
+              />
+
+              <ButtonComponent
+                type="submit"
+                content={editingUser ? 'Save Changes' : 'Add User'}
+                size="medium"
+                sx={{ textTransform: 'capitalize' }}
+                variant="contained"
+                color="primary"
+              />
+            </DialogActions>
+          </form>
         </Dialog>
 
         <DialogComponent
@@ -208,7 +260,7 @@ function Home() {
               <TableBody>
                 {users.map(user => (
                   <TableRow
-                    key={user.id}
+                    key={user?.id}
                     sx={{
                       borderBottom: '2px solid rgba(0, 0, 0, 0.1)',
                     }}
@@ -219,7 +271,7 @@ function Home() {
                     <TableCell sx={{ width: '25%', border: 'none', display: 'flex', flexWrap: 'nowrap' }}>
                       <ButtonComponent
                         content="Edit"
-                        id={user.id}
+                        id={user?.id}
                         onClick={e => handleEdit(e.currentTarget.id)}
                         variant="outlined"
                         sx={{
@@ -239,8 +291,8 @@ function Home() {
                       />
                       <ButtonComponent
                         content="Delete"
-                        id={user.number}
-                        onClick={() => confirmDeleteUser(user.id)}
+                        id={user?.number}
+                        onClick={() => confirmDeleteUser(user?.id ?? '')}
                         variant="outlined"
                         color="error"
                         sx={{
